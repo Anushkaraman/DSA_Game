@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N-Queens Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;  
+            font-family: 'Dancing Script', cursive;
+            background-image: url('https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg?size=626&ext=jpg&ga=GA1.1.2008272138.1720828800&semt=sph');
+            background-size: cover; /* Make the image cover the entire background */
+            background-position: center;
+        }
+        #board {
+            display: grid;
+            gap: 0px;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            cursor: pointer;
+        }
+        .cell:nth-child(odd) {
+            background-color: #ddd;
+        }
+        .queen {
+            font-size: 24px;
+        }
+        .incorrect {
+            background-color: red !important;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Dancing Script', cursive;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Dancing Script', cursive;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .top-left-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #28a745;
+        }
+        .top-left-button:hover {
+            background-color: #218838;
+        }
+        .safe {
+            background-color: green !important;
+        }
+        .cell.yellow {
+            background-color: yellow !important;
+        }
+
+        .cell.red {
+            background-color: red !important;
+        }
+        #submit_button {
+            background-color: #228507;
+            color: white;
+        }
+        #submit_button:hover {
+            background-color: #1f9e32;
+        }
+        #show_solution_button {
+            background-color: #881fde;
+            color: white;
+        }
+        #show_solution_button:hover {
+            background-color: #6b1aae;
+        }
+
+    </style>
+</head>
+<body>
+    <h1> N-Queen Game </h1>
+    <button class="top-left-button" onclick="location.href='nqueensol.html'">All Solutions</button>
+    <div class="container">
+        <input type="number" id="numberInput" placeholder="Enter a number" min="1">
+        <br>
+        <button onclick="start()">Start</button>
+    </div>
+    <p id="message"></p>
+    <div id="board"></div>
+    <div class="button-container">
+        <button onclick="submitBoard()" id="submit_button">Submit</button>
+        <button class="bottom-button" onclick="showSolution()" id="show_solution_button">Show Solution</button>
+    </div>
+
+    <script>
+        let n = 8; // Default value, will be overwritten by user input
+        let board = [];
+
+        function start() {
+            document.getElementById("message").innerHTML ='';
+            n = parseInt(document.getElementById('numberInput').value, 10);
+            if (isNaN(n) || n <= 0 || n>8)      //applying validation if the number is between our expected range
+            {
+                alert("Please enter a valid positive number between 1 and 8.");
+                return;
+            }
+            
+            board = [];
+            const boardElement = document.getElementById('board');
+            boardElement.innerHTML = '';
+            boardElement.style.gridTemplateColumns = `repeat(${n}, 50px)`;      //this line is used to create columns
+
+            for (let i = 0; i < n; i++) {
+                board[i] = [];  //creating empty array to hold the cell of the current row
+                for (let j = 0; j < n; j++) {
+                    const cell = document.createElement('div');     //creates a new cell
+                    cell.classList.add('cell');
+                    cell.style.backgroundColor = (i + j) % 2 === 0 ? '#f0d9b5' : '#b58863';     //applying alternate colours to alternate cells
+                    cell.style.border = '0.3px solid black'; 
+                    cell.addEventListener('click', () => toggleQueen(i, j));    //calling toggle queen function when clicking on the cell to place or remove queen
+                    board[i][j] = cell;     //storing the refrence of cell for later use
+                    boardElement.appendChild(cell);
+                }
+            }
+        }
+
+        //this function helps user to place or remove a queen
+        function toggleQueen(row, col) {
+            const cell = board[row][col];
+            cell.textContent = cell.textContent === '♛' ? '' : '♛';
+            cell.classList.toggle('queen', cell.textContent === '♛');
+            cell.classList.remove('safe', 'incorrect');
+        }
+
+        //this function checks if any queen is attacking any other queen
+        function checkQueens(queens) {
+            const attackingQueens = new Set(); //we initialize a set to store the indexes of attacking queens which will be unique set will ensure that
+            
+            for (let i = 0; i < queens.length; i++) {
+                for (let j = i + 1; j < queens.length; j++) { //this avoides duplicate checking of queens by starting from i+1
+                    const [r1, c1] = queens[i];  //storing queens[i][0] in r1 and queens[i][1] in c1  means getting row and column of queen i
+                    const [r2, c2] = queens[j];  //storing queens[i][0] in r2 and queens[i][1] in c2  means getting row and column of queen j
+                    
+                    if (r1 === r2 || c1 === c2 || Math.abs(r1 - r2) === Math.abs(c1 - c2)) //checking if queen i and j are in same row or column or are sharing a same diagonal
+                    {
+                        attackingQueens.add(i);     //if the queen is attacking any other queen then add that queen to attackingQueens set
+                        attackingQueens.add(j);
+                    }
+                }
+            }
+            
+            if (attackingQueens.size > 0) {
+                attackingQueens.forEach(index => {
+                    const [row, col] = queens[index];
+                    board[row][col].classList.add('incorrect');     //adding incorrect class to the cell where queen is attacking any other queen
+                });
+            }
+            
+            for (let i = 0; i < queens.length; i++) {
+                if (!attackingQueens.has(i)) {
+                    const [row, col] = queens[i];
+                    board[row][col].classList.add('safe');          //adding safe class to the cell where queen is not attacking any other queen
+                }
+            }
+            
+            return attackingQueens.size === 0;      //returning true if no queen is attacking any other queen so this ubmit will say you won
+        }
+
+
+        //this function is checking if the board is correct or not
+        function submitBoard() {
+            const queens = [];
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    board[i][j].classList.remove('safe', 'incorrect');      //removing any class applied to any cell
+                    if (board[i][j].textContent === '♛') {
+                        queens.push([i, j]);        //pushing all the positions of queen in queens
+                    }
+                }
+            }
+            
+            //displaying message if n queens are not placed more or less queens are present
+            if (queens.length !== n) {
+                alert(`Please place exactly ${n} queens.`);
+                return;
+            }
+
+            //calling checkQueens ro check if any queen is attacking any other queen
+            const isCorrect = checkQueens(queens);
+            if (isCorrect) {
+                document.getElementById("message").innerHTML = 'You won!';
+                
+            } else {
+                document.getElementById("message").innerHTML = 'You lose!';
+            }
+            for (let i = 0; i < queens.length; i++) {
+                if (!attackingQueens.has(i)) {
+                    const [row, col] = queens[i];
+                    board[row][col].classList.add('safe');      //adding safe class to those queens which are not getting attacked
+                }
+            }
+        }
+        
+        
+
+        //This fumnction helps to visualize the steps of placing and removing queens takes parameter of row and column and a boolean parameter that if the queen should be placed there or not
+        function visualizeStep(row, col, isPlacing) {
+            //This creates a new Promise, which allows asynchronous operations. The resolve function will be called later to indicate that the operation is complete.
+            //needs to use promise because a lot of timeouts are present here which can disturb the flow of execution
+            return new Promise((resolve) => {
+                //settimeout is used to cause some delay so the steps will be visible
+                setTimeout(() => {
+                    const cell = board[row][col];
+                    if (isPlacing) {
+                        cell.textContent = '♛';        //placing the queen if isPlacing is true
+                        cell.classList.add('yellow');
+                    } else {
+                        cell.classList.remove('yellow');       //remove yellow class from cell freverting its highlights
+                        cell.classList.add('red');      //adding red class to show that queen was in danger
+                        setTimeout(() => {
+                            //removing everything from that cell if it is not safe
+                            cell.classList.remove('red');       
+                            cell.textContent = '';
+                        }, 500);
+                    }
+                    resolve();
+                }, 500);
+            });
+        }
+
+
+
+
+
+        async function showSolution() {
+            // we need this function to be async as we are calling await which pauses the flow of execution for which async is necessary
+            if (isNaN(n) || n <= 0 || n > 8) {
+                alert("Please start the game first by entering a valid number and clicking 'Start'.");
+                return;
+            }
+
+            // Clear the board before showing the solution
+            for (let i = 0; i < n; i++) {
+                for (let j = 0; j < n; j++) {
+                    board[i][j].textContent = '';
+                    board[i][j].classList.remove('queen', 'incorrect', 'safe', 'yellow', 'red');
+                }
+            }
+
+            //wait untill the solveNQueens function is executed
+
+            const solutionFound = await solveNQueens(n);
+            if (solutionFound) {
+                setTimeout(() => {
+                    document.getElementById("message").innerHTML ='Solution found!';
+                }, 1000);
+            } else {
+                document.getElementById("message").innerHTML ='No solution found for this board size.';
+            }
+        }
+
+
+        async function solveNQueens(n) {
+            const boardState = Array.from({ length: n }, () => Array(n).fill(false));       //crestes an array of length n with initial values as undefined ans => creates an inner array of n for wach n element like a matrix filling it with false
+            const cols = new Set();     //this keeps the track for the columns where queens are placed
+            const diag1 = new Set();    //this keeps track of up-left diagonals where queens are placed
+            const diag2 = new Set();    //this keeps track of up-right diagonals where queens are placed
+
+            async function backtrack(r = 0)     //this function is used to backtrack the steps if the queen is not placed correctly
+            {
+                if (r === n)  //if the row is equal to n then we have placed all the queens correctly
+                {
+                    return true;
+                }
+                for (let c = 0; c < n; c++) {
+                    if (cols.has(c) || diag1.has(r - c) || diag2.has(r + c)) continue;      //if the queen is attacking any other queen then continue
+                    boardState[r][c] = true;        //placing the queen if not getting attacked at that position
+                    cols.add(c);
+                    diag1.add(r - c);   //major diaoganals having the same difference
+                    diag2.add(r + c);  //minor diagonals having the same sum
+                    await visualizeStep(r, c, true); // Highlight placing a queen
+                    if (await backtrack(r + 1)) return true;          //This makes a recursive call to backtrack, moving to the next row (r + 1). If this recursive call returns true, it indicates a valid solution has been found, and the function returns true.
+                    await visualizeStep(r, c, false); // Highlight removing a queen
+                    boardState[r][c] = false;   //this indicates that queen has been reoved
+                    cols.delete(c);     //delete the column from set because no longer the current position is feasable
+                    diag1.delete(r - c);    //delete the major diagonal from set
+                    diag2.delete(r + c);    //delete the minor diagonal from set
+                }
+                return false;       //return false if we were not able to place all the queens
+            }
+
+            await backtrack();  //calling the backtrack function
+            return boardState;
+        }
+
+
+
+
+
+    </script>
+</body>
+</html>
