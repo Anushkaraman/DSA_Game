@@ -28,8 +28,4 @@ Experience an intuitive and responsive design.
 
 #Tower of Hanoi
 A visual representation of the Tower of Hanoi problem, illustrating the recursive solution. Users can:
-
-Move disks between rods to solve the puzzle.
-Watch the solution process step-by-step with animations.
-
-//deployment-link: https://tamanna225.github.io/DSA_Gamezone/
+ 
