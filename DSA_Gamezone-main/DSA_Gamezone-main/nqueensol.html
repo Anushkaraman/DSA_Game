@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>N-Queen-Visualiser</title>
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.8.1/css/all.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+    
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Dancing Script', cursive;
+  background-image: url('https://img.freepik.com/free-vector/hand-painted-watercolor-pastel-sky-background_23-2148902771.jpg?size=626&ext=jpg&ga=GA1.1.2008272138.1720828800&semt=sph');
+  background-size: cover; /* Make the image cover the entire background */
+  background-position: center;
+}
+
+
+div.n-queen {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 70%;
+  max-width: 450px;
+}
+.n-queen{
+    text-align: center;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 100px;
+    margin-top: 150px;
+    align-items: center;
+}
+
+.inputbox {
+  position: relative;
+  top: 1.5em;
+  bottom: 2em;
+}
+
+
+input[type="number"] {
+            width: 150px;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #2ec4b6;
+            border-radius: 4px;
+            font-family: 'Dancing Script', cursive;
+    }
+.numberbox::placeholder {
+  color: #2ec4b6; 
+  opacity: 1;
+}
+.slider-container {
+  position: absolute;
+  left: 5%;
+  width: 90%;
+  margin: 0 auto;
+  top: 4em;
+}
+
+.slider {
+  width: 100%;
+  margin: 0 auto;
+  height: 7px;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #e8eddf 60%, #e8eddf 60%);
+  outline: none;
+}
+
+.slider::after {
+  content: "SLOW";
+  position: absolute;
+  top: -10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fa7921;
+}
+
+.slider::before {
+  content: "FAST";
+  position: absolute;
+  top: -10px;
+  right: 0px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #fa7921;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  position: relative;
+  top: -2px;
+  cursor: pointer;
+  background-color: #fa7921;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.slider::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  height: 15px;
+  width: 15px;
+  z-index: 1;
+  color: #1fac0f;
+}
+
+
+
+#progress-bar {
+  width: 60%;
+  height: 7px;
+  background: #20c73c;
+  border-radius: 7px;
+  position: absolute;
+  top: 7px;
+}
+
+.play-button {
+  position: relative;
+  top: 60px;
+  border: none;
+  outline: none;
+  color: #fdfffc;
+  width: 80px;
+  height: 35px;
+  background-color: #8025f7;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  
+}
+
+.play-button:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.queen-arrangement {
+  position: relative;
+  top: 140px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 500;
+  color: #247ba0;
+}
+#spacing{
+    margin-top: 250px;
+    margin-bottom: 40px;
+}
+#n-queen-board {
+  position: relative;
+  display: flex;
+  width: 80%;
+  top: 150px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#n-queen-board div {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  margin: 0 10px;
+  box-shadow: 0 4px 8px 0 rgb(0, 0, 0, 0.2);
+  border-radius: 3px;
+  bottom: 10px;
+}
+
+table {
+  position: relative;
+  border-collapse: collapse;
+  margin: -10px 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+  align-self: center;
+}
+
+td {
+  width: 35px;
+  height: 35px;
+  text-align: center;
+}
+
+h4 {
+  position: relative;
+  top: -5px;
+  padding: 8px;
+  width: 95%;
+  background-color: #0582ca;
+  align-self: center;
+  color: #fdfffc;
+  text-align: center;
+  border-radius: 4px 4px 0 0;
+}
+h1{
+    text-align: center;
+    margin-bottom: 40px;
+    color: #010001;
+    font-size: 50px;
+}
+  
+    </style>
+  </head>
+
+  <body>
+    <h1>
+        Solutions
+    </h1>
+    <div class="n-queen">
+      <div class="inputbox">
+        <input type="number" class="numberbox" id="numberbox" placeholder="Enter total Queens" required />
+
+      </div>
+
+      <div class="slider-container">
+        <input
+          class="slider"
+          id="slider"
+          type="range"
+          min="0"
+          max="100"
+          value="60"
+        />
+        <div id="progress-bar"></div>
+      </div>
+      <button class="play-button" id="play-button">
+        <i class="fa fa-play" aria-hidden="true"></i> Play
+      </button>
+    </div>
+    <div id="spacing">
+    <div class="queen-arrangement" id="queen-arrangement"></div>
+    <div id="n-queen-board"></div>
+</div>
+    <script src="app.js"></script>
+    <script>
+    const numberbox = document.getElementById("numberbox");
+    const slider = document.getElementById("slider");
+    const progressBar = document.getElementById("progress-bar")
+    const playButton = document.getElementById('play-button');
+    const pauseButton = document.getElementById("pause-button");
+
+    const queen = '♛';
+
+    let n, speed, tempSpeed, q, Board = 0;
+    // Board = 0;
+
+    // Creating array for all the possible arrangements of the N-Queen
+    let array = [0, 2, 1, 1, 3, 11, 5, 41, 93];
+
+    // Used to store the state of the boards;
+    let pos = {};
+
+    // Setting the slider value onSlide
+    speed = (100 - slider.value) * 10;    //use the current value of the slider to determine the speed for execution
+    tempSpeed = speed;
+    slider.oninput = function () {    //when the slider is moved, the value is updated
+        progressBar.style.width = this.value + "%";   //sets the width of the progress bar to reflect the current value of the slider
+        speed = (100 - slider.value) * 10;    //recalculates the speed whenever slider value is changed
+    }
+
+    class Queen {
+        constructor() {
+          //Shared state can cause problems in programs, especially in more complex applications where multiple objects are expected to behave independently.
+          //Object.assign() has two parameters as target and source copies the source value in the targer
+          this.position = Object.assign({}, pos);   // This ensures that each instance of the Queen class has its own copy of the pos object and does not share it with other instances.
+          // this.Board = 0;
+          this.uuid = [];     //hemps to create a unique id to each board
+        }
+
+        nQueen = async () => {
+            Board = 0;
+            this.position[`${Board}`] = {};   //initializing an emoty array for the position of xurrent boatrd
+            numberbox.disabled = true;    //prevent user from changing the inpout in betwen
+            await q.solveQueen(Board, 0, n);
+            await q.clearColor(Board);   //clears the color of the board which were set using the solveQueen 
+            numberbox.disabled = false; //after completion enabke the input again;
+        }
+
+        isValid = async (board, r, col, n) => {
+            const table = document.getElementById(`table-${this.uuid[board]}`); //fetching the current board with the help of uuid
+            const currentRow = table.firstChild.childNodes[r];    //find the row
+            const currentColumn = currentRow.getElementsByTagName("td")[col];   //find the specific cell
+            currentColumn.innerHTML = queen;    //set the value of the cell to queen
+            await q.delay();      //wait for next step according to the speed
+
+            // Checking the queen in the same column
+            for (let i = r - 1; i >= 0; --i) {
+                const row = table.firstChild.childNodes[i];
+                const column = row.getElementsByTagName("td")[col];
+
+                const value = column.innerHTML;
+
+                if (value == queen) {
+                    column.style.backgroundColor = "#FB5607";
+                    currentColumn.innerHTML = "-"
+                    return false;
+                }
+                column.style.backgroundColor = "#ffca3a";
+                await q.delay();
+            }
+
+            //Checking the upper left diagonal
+            for (let i = r - 1, j = col - 1; i >= 0 && j >= 0; --i, --j) {
+                const row = table.firstChild.childNodes[i];
+                const column = row.getElementsByTagName("td")[j];
+                const value = column.innerHTML;
+
+                if (value == queen) {
+                    column.style.backgroundColor = "#fb5607";
+                    currentColumn.innerHTML = "-"
+                    return false;
+                }
+                column.style.backgroundColor = "#ffca3a";
+                await q.delay();
+            }
+
+            // Checking the upper right diagonal
+            for (let i = r - 1, j = col + 1; i >= 0 && j < n; --i, ++j) {
+                const row = table.firstChild.childNodes[i];
+                const column = row.getElementsByTagName("td")[j];
+
+                const value = column.innerHTML;
+
+                if (value == queen) {
+                    column.style.backgroundColor = "#FB5607";
+                    currentColumn.innerHTML = "-"
+                    return false;
+                }
+                column.style.backgroundColor = "#ffca3a";
+                await q.delay();
+            }
+            return true;
+        }
+
+        clearColor = async (board) => {
+            for (let j = 0; j < n; ++j) {
+                const table = document.getElementById(`table-${this.uuid[board]}`);
+                const row = table.firstChild.childNodes[j];
+                for (let k = 0; k < n; ++k)
+                    (j + k) & 1
+                        ? (row.getElementsByTagName("td")[k].style.backgroundColor = "#b58863")
+                        : (row.getElementsByTagName("td")[k].style.backgroundColor = "#FCCD90");
+            }
+        }
+
+        delay = async () => {
+            await new Promise((done) => setTimeout(() => done(), speed));
+        }
+
+        solveQueen = async (board, r, n) => {
+          //this function helps to run the backtracking algoerithm
+            if (r == n) {
+                //base case showing that queens have been successfully placed
+                ++Board;  //to create a new board if the current board has successfully placed our queens
+                let table = document.getElementById(`table-${this.uuid[Board]}`);
+                //we start the next from where the previous board left
+                for (let k = 0; k < n; ++k) {
+                    let row = table.firstChild.childNodes[k];
+                    row.getElementsByTagName("td")[this.position[board][k]].innerHTML = queen;
+                }
+                this.position[Board] = this.position[board];
+                return;
+            }
+
+            for (let i = 0; i < n; ++i) {
+                await q.delay();
+                await q.clearColor(board);
+                if (await q.isValid(board, r, i, n)) {
+                    await q.delay();
+                    // console.log("inside:" + board)
+                    await q.clearColor(board);
+                    let table = document.getElementById(`table-${this.uuid[board]}`);
+                    let row = table.firstChild.childNodes[r];
+                    row.getElementsByTagName("td")[i].innerHTML = queen;
+
+                    this.position[board][r] = i;
+
+                    if (await q.solveQueen(board, r + 1, n))      //recursive call for the next row
+                        await q.clearColor(board);
+
+                    await q.delay();
+                    board = Board;
+                    table = document.getElementById(`table-${this.uuid[board]}`);     //selecting board with its uuid
+                    row = table.firstChild.childNodes[r];
+                    row.getElementsByTagName("td")[i].innerHTML = "-";
+
+                    delete this.position[`${board}`][`${r}`];     //removes the queen from the position as it is attacking other queen
+                }
+            }
+        }
+    }
+
+    playButton.onclick = async function visualise() {
+        const chessBoard = document.getElementById("n-queen-board");
+        const arrangement = document.getElementById("queen-arrangement");
+
+        n = numberbox.value;   //fetch the value of the number of queens
+        q = new Queen();      //create instance of queen class
+
+        if (n > 8) {
+            numberbox.value = "";
+            alert("Queen value is too large");
+            return;
+        } else if (n < 1) {
+            numberbox.value = "";
+            alert("Queen value is too small");
+            return;
+        }
+
+        // Removing all the of previous execution context
+        while (chessBoard.hasChildNodes()) {
+            chessBoard.removeChild(chessBoard.firstChild);
+        }
+        if (arrangement.hasChildNodes()) {
+            arrangement.removeChild(arrangement.lastChild)
+        }
+    
+        const para = document.createElement("p");   //creating a paragraph element
+        para.setAttribute("class", "queen-info");
+        para.innerHTML = `For ${n}x${n} board, ${array[n] - 1} arrangements are possible.`; //adding data to paragraph element
+        arrangement.appendChild(para);
+
+        //Adding boards to the Div
+        if (chessBoard.childElementCount === 0) {
+            for (let i = 0; i < array[n]; ++i) {
+                q.uuid.push(`${Date.now()}-${i}`);
+                let div = document.createElement('div');
+                let table = document.createElement('table');
+                let header = document.createElement('h4');
+                header.innerHTML = `Board ${i + 1} `
+                table.setAttribute("id", `table-${q.uuid[i]}`);
+                header.setAttribute("id", `paragraph-${i}`);
+                chessBoard.appendChild(div);
+                div.appendChild(header);
+                div.appendChild(table);
+            }
+        }
+
+
+        //creating and setting up the HTML structure for each chessboard that will display the N-Queens solutions
+        for (let k = 0; k < array[n]; ++k) { //iterate over unique ways to place queens
+            let table = document.getElementById(`table-${q.uuid[k]}`);  //fetch the table with the help of uuid
+            for (let i = 0; i < n; ++i) {
+                const row = table.insertRow(i); // inserting ith row
+                row.setAttribute("id", `Row${i} `);
+                for (let j = 0; j < n; ++j) {
+                    const col = row.insertCell(j); // inserting jth column
+                    (i + j) & 1
+                        ? (col.style.backgroundColor = "#b58863")
+                        : (col.style.backgroundColor = "#FCCD90");
+                    col.innerHTML = "-";
+                    col.style.border = "0.3px solid #373f51";
+                }
+            }
+            await q.clearColor(k);
+        }
+        await q.nQueen();
+    };
+
+    </script>
+  </body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BST Visualizer</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Dancing Script', cursive;
+            background-image: url('https://st.depositphotos.com/1001069/1259/i/450/depositphotos_12595238-stock-photo-nature-blurred-bokeh-background.jpg');
+            background-size: cover; /* Make the image cover the entire background */
+            background-position: center;
+        }
+
+        #controls {
+            margin: 20px;
+        }
+
+        #bst-canvas {
+            margin-top: 20px;
+            border: 1px solid #ccc;
+        }
+        input[type="number"] {
+            width: 100px;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family:'Dancing Script', cursive;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            font-family:'Dancing Script', cursive;
+        }
+        button:hover {
+            transform: scale(0.9);
+        }
+        #insertion {
+            background-color: #28a745;
+        }
+        #deletion {
+            background-color: #dc3545;
+        }
+        #inorder {
+            background-color: #ffc107;
+        }
+        #preOrder {
+            background-color: #007bff;
+        }
+        #postOrder {
+            background-color: #17a2b8;
+        }
+        
+
+    </style>
+</head>
+<body>
+    <h1>BST Visualizer</h1>
+    <div id="controls">
+        <input type="number" id="node-value" placeholder="Enter node value">
+        <button onclick="insertNode()" id="insertion">Insert Node</button>
+        <button onclick="deleteSelectedNode()" id="deletion">Delete Selected Node</button>
+        </div>
+        <div id="traversal-buttons">
+            <button onclick="visualizePreOrder()" id="preOrder">Pre-order Traversal</button>
+        <button onclick="visualizeInOrder()" id="inorder">In-order Traversal</button>
+        <button onclick="visualizePostOrder()" id="postOrder">Post-order Traversal</button>
+    </div>
+    <div id="traversal-list"></div>
+    
+    <svg id="bst-canvas" width="800" height="600">
+        <!--rect x ="10" y = "10" width="20%" height="20%"-->
+    </svg>
+    <script>
+        //svg are scalable vector graphics they are different form vectors
+        class TreeNode {
+            constructor(value) {
+                this.value = value;
+                this.left = null;
+                this.right = null;
+                this.x = 0;
+                this.y = 0;
+            }
+        }   
+
+        class BST {
+            constructor() {
+                this.root = null;
+                this.selectedNode = null;
+            }
+
+            insert(value) {
+                if (this.root === null) {       // if no element in trewe create node
+                    this.root = new TreeNode(value);
+                } else {
+                    this.insertNode(this.root, value);
+                }
+                this.updatePositions();
+                this.render();
+            }
+
+            insertNode(node, value) {
+                if (value < node.value) {
+                    if (node.left === null) {
+                        node.left = new TreeNode(value);
+                    } else {
+                        this.insertNode(node.left, value);
+                    }
+                } else if (value > node.value) {  // Ensure the value is different
+                    if (node.right === null) {
+                        node.right = new TreeNode(value);
+                    } else {
+                        this.insertNode(node.right, value);
+                    }
+                } else {
+                    alert('Value already exists in the tree!');
+                }
+            }
+
+            delete(value) {
+                this.root = this.deleteNode(this.root, value);
+                this.updatePositions();
+                this.render();
+            }
+
+            deleteNode(node, value) {
+                if (node === null) {
+                    return node;
+                }
+
+                if (value < node.value) {   //if value is smaller then root call left sub tree
+                    node.left = this.deleteNode(node.left, value);
+                } else if (value > node.value) {       //if value is greater then root call right sub tree
+                    node.right = this.deleteNode(node.right, value);
+                } else {
+                    if (node.left === null) {   //if left child is empty return right
+                        return node.right;
+                    } else if (node.right === null) {       //if right subtree is empty return left
+                        return node.left;
+                    }
+
+                    node.value = this.minValue(node.right);     //if no subtree was empty find the minimum value from right sub tree to take the place
+                    node.right = this.deleteNode(node.right, node.value);
+                }
+
+                return node;
+            }
+
+            minValue(node) {
+                let minValue = node.value;  //finding the minimum value in right subtree
+                while (node.left !== null) {
+                    node = node.left;
+                    minValue = node.value;
+                }
+                return minValue;
+            }
+
+            updatePositions() {
+                this.updateNodePosition(this.root, 400, 50, 200);       //calling update position for root and x,y index and gap between them
+            }
+
+            updateNodePosition(node, x, y, gap) {
+                if (node !== null) {
+                    node.x = x;
+                    node.y = y;
+                    this.updateNodePosition(node.left, x - gap, y + 50, gap / 2);   //x index should be decrease by gap y should be increase by 50 and gap should be halved
+                    this.updateNodePosition(node.right, x + gap, y + 50, gap / 2);
+                }
+            }
+
+            render() {
+                const svg = document.getElementById('bst-canvas');
+                svg.innerHTML = '';     //clear everything from svg
+
+                if (this.root !== null) {   //check if bst is not null
+                    this.renderNode(svg, this.root);        //calling renderNode to add node in svg
+                }
+            }
+
+            renderNode(svg, node) {
+                if (node.left !== null) {   //check if left subtree is not null
+                    this.drawLine(svg, node, node.left);        //line is drawn for left subtree
+                    this.renderNode(svg, node.left);    //render left subtree
+                }
+
+                if (node.right !== null) {      //check if right subtree is not null
+                    this.drawLine(svg, node, node.right);       //line is drawn for right subtree
+                    this.renderNode(svg, node.right);       //render right subtree
+                }
+
+                this.drawNode(svg, node);       //draw the node
+            }
+
+            drawLine(svg, parent, child) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', parent.x);  //starting coordinates of line
+                line.setAttribute('y1', parent.y);
+                line.setAttribute('x2', child.x);       //ending coordinates of line
+                line.setAttribute('y2', child.y);
+                line.setAttribute('stroke', 'black');
+                svg.appendChild(line);      //append line in svg
+            }
+
+            drawNode(svg, node) {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', node.x);      //center coordinates of circle
+                circle.setAttribute('cy', node.y);
+                circle.setAttribute('r', 20);       //set radius
+                circle.setAttribute('fill', node === this.selectedNode ? 'red' : 'lightblue');  //filling colour
+                circle.setAttribute('stroke', 'black');     //outline as black
+                circle.setAttribute('id', `node-${node.value}`);        //assign value as id
+                circle.addEventListener('click', () => this.selectNode(node));
+                svg.appendChild(circle);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');    //add value as text
+                text.setAttribute('x', node.x);
+                text.setAttribute('y', node.y + 5);
+                text.setAttribute('text-anchor', 'middle');     //align value in middle
+                text.setAttribute('font-size', '15');
+                text.textContent = node.value;
+                svg.appendChild(text);
+            }
+
+            selectNode(node) {
+                this.selectedNode = node;
+                this.render();  //after selecting call render again
+            }
+            
+
+            async visualizeInOrder(node, result = []) {     //code to visualize inorder
+                    if (node !== null) {
+                        await this.visualizeInOrder(node.left, result); //calling left subtree
+                        result.push(node.value);        //appending root
+                        document.getElementById(`node-${node.value}`).setAttribute('fill', 'orange');       //convert node to orange colour
+                        updateTraversalList(result);        //kep on updating traversal list
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        await this.visualizeInOrder(node.right, result);    //calling right subtree
+                    }
+
+                    return result;
+                }
+
+                async visualizePreOrder(node, result = []) {    //code to visualize preorder
+                    if (node !== null) {
+                        result.push(node.value);    //appending root
+                        document.getElementById(`node-${node.value}`).setAttribute('fill', 'orange');
+                        updateTraversalList(result);        //whenever traversing through a node updating it on screen
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                        await this.visualizePreOrder(node.left, result);        //calling left subtree
+                        await this.visualizePreOrder(node.right, result);       //calling right subtree
+                    }
+                    return result;
+                }
+
+                async visualizePostOrder(node, result = []) {   //code to visualize postorder
+                    if (node !== null) {
+                        await this.visualizePostOrder(node.left, result);   //calling left subtree
+                        await this.visualizePostOrder(node.right, result);      //calling right subtree
+                        result.push(node.value);        //appending root
+                        document.getElementById(`node-${node.value}`).setAttribute('fill', 'orange');
+                        updateTraversalList(result);        //whenever traversing through a node updating it on screen
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    }
+                    return result;
+                }
+
+
+        }
+
+        const bst = new BST();
+
+        function insertNode() {
+            const value = parseInt(document.getElementById('node-value').value);
+            if (!isNaN(value)) {
+                bst.insert(value);      //call insert node from bst
+            }
+        }
+
+        function deleteSelectedNode() {
+            if (bst.selectedNode !== null) {
+                bst.delete(bst.selectedNode.value);     //call delete from bst and selectednode too
+                bst.selectedNode = null;
+            }
+        }
+        function resetNodeColors() {
+            const circles = document.querySelectorAll('circle');
+            circles.forEach(circle => {
+                circle.setAttribute('fill', 'lightblue');       //reset node colour of each node
+            });
+        }
+        function updateTraversalList(result) {
+            const traversalList = document.getElementById('traversal-list');
+            traversalList.textContent = 'Traversal: ' + result.join(', ');      //update traversal list so that we can display each traversal
+            }
+        async function visualizeInOrder() {
+            resetNodeColors();      
+            const result = [];
+            await bst.visualizeInOrder(bst.root, result);       //call visualize in order member of tree
+            document.getElementById('traversal-list').textContent = 'In-order: ' + result.join(', ');
+            resetNodeColors();
+        }
+
+        async function visualizePreOrder() {
+            resetNodeColors();
+            const result = [];
+            await bst.visualizePreOrder(bst.root, result);      //call visualize preorder member of tree
+            document.getElementById('traversal-list').textContent = 'Pre-order: ' + result.join(', ');
+            resetNodeColors();
+        }
+
+        async function visualizePostOrder() {
+            resetNodeColors();
+            const result = [];
+            await bst.visualizePostOrder(bst.root, result);     //call visualize postorder member of tree
+            document.getElementById('traversal-list').textContent = 'Post-order: ' + result.join(', ');
+            resetNodeColors();
+        }
+
+
+
+
+    </script>
+</body>
+</html>

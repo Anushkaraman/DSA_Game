@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: url('https://marketplace.canva.com/EAFt0-MWpSU/2/0/900w/canva-soft-watercolour-no-copy-phone-wallpaper-in-purple-and-blue-gradient-style-O5sd-yFWWG4.jpg');
+            background-size: cover; /* Make the image cover the entire background */
+            background-position: center;
+            font-family: 'Dancing Script', cursive;
+        }
+        #game {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 15px;
+        }
+        .cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            background-image: url('https://thumbs.dreamstime.com/b/purple-background-blur-wallpaper-stock-picture-valentines-lilac-blurred-lights-violet-backdrop-30822413.jpg');
+            background-size: cover; /* Make the image cover the entire background */
+            background-position: center;
+            /*border: 1px solid #407fd1;*/
+            font-size: 2em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 4px;
+        }
+        .cell:hover {
+            transform: scale(0.9);
+        }
+        
+        #message {
+            margin-top: 20px;
+            text-align: center;
+            font-size: large;
+            margin-bottom: 20px;
+        }
+        #title_and_game{
+            display: flex;
+            flex-direction: column;
+        }
+        .child {
+            margin-bottom: 20px; 
+            padding: 20px;
+        }
+        #heading{
+            text-align: center;
+            font-size: large;
+            color: #3f1910;
+        }
+        .cell.X {
+            color: #12ba1d; /* Red color for X */
+            font-size: 3em; /* Increased size */
+        }
+
+        .cell.O {
+            color: #a91414;
+             /* Blue color for O */
+            font-size: 3em; /* Increased size */
+        }
+        button {
+            background-color: #0fa607; /* Yellow background */
+            color: white; /* White text */
+            border: none; /* No border */
+            padding: 10px 20px; /* Padding */
+            font-size: 1.2em; /* Font size */
+            cursor: pointer; /* Pointer cursor */
+            border-radius: 5px; /* Rounded corners */
+            transition: background-color 0.3s; /* Smooth transition */
+            display: block; /* Make button a block element */
+            margin: 0 auto;
+        }
+
+        button:hover {
+            background-color: #13c838; /* Darker yellow on hover */
+        }
+
+
+        
+    </style>
+</head>
+<body>
+    <div id = "title_and_game">
+    <div class="child" id="heading">
+    <H1>
+        TIC-TAC-TOE
+    </H1>
+    </div>
+    <div class="child">
+        <div id="game"></div>
+        <div id="message"></div>
+        <button onclick="restartGame()">Restart Game</button>
+    </div>
+</div>
+    <script>
+        const gameContainer = document.getElementById('game');
+        const messageElement = document.getElementById('message');
+        let board;          //hold current state of the game
+        let currentPlayer;      //keep track of turns
+        let gameActive;         //check if the game is going on or not
+        let possibleMoves;      //queue of possible movees
+
+        function startGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            messageElement.textContent = '';    //clear any already displayed message
+            gameContainer.innerHTML = '';       //clear the board
+            possibleMoves = [];
+            //creating the board
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');     //creating div
+                cell.classList.add('cell');     //adding cell in divs
+                cell.addEventListener('click', () => handleCellClick(i));   //clicking cell calls handle cellclick to place the X
+                gameContainer.appendChild(cell);
+            }
+        }
+
+        function handleCellClick(index) {
+            if (board[index] === '' && gameActive) {
+                makeMove(index, 'X');
+                if (checkWin('X')) {
+                    messageElement.textContent = 'Player wins!';    //display player wins which is never possible
+                    gameActive = false;     //deactivate game if player wins
+                } else if (board.every(cell => cell !== '')) {
+                    messageElement.textContent = 'It\'s a tie!';    //if all the cells are filled and nobody won just display tie
+                    gameActive = false;
+                } else {
+                    //if game is still active, let the computer make a move
+                    setTimeout(computerMove, 500); // Delay computer move for a better UX
+                }
+            }
+        }
+
+        function makeMove(index, player) {
+            board[index] = player;
+            gameContainer.children[index].textContent = player;
+            //gameContainer.children[index].classList.remove('good-move', 'bad-move');
+            gameContainer.children[index].classList.add(player);   //apply player css
+        }
+
+        function computerMove() {
+            const bestMove = findBestMove(board);
+            makeMove(bestMove.index, 'O');
+            if (checkWin('O')) {
+                messageElement.textContent = 'Computer wins!';
+                gameActive = false;
+            } else if (board.every(cell => cell !== '')) {
+                messageElement.textContent = 'It\'s a tie!';
+                gameActive = false;
+            }
+        }
+
+        function checkWin(player) {
+            const winPatterns = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+            return winPatterns.some(pattern => {
+                return pattern.every(index => board[index] === player);
+            });
+        }
+
+        function findBestMove(board) {
+            let bestVal = -Infinity;
+            let bestMove = -1;
+            possibleMoves = [];
+
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] === '') {
+                    board[i] = 'O';
+                    let moveVal = minimax(board, 0, false);
+                    board[i] = '';
+                    possibleMoves.push({ index: i, value: moveVal });
+                    if (moveVal > bestVal) {
+                        bestMove = i;
+                        bestVal = moveVal;
+                    }
+                }
+            }
+            return { index: bestMove, value: bestVal };
+        }
+
+        function minimax(board, depth, isMax) {
+            let score = evaluate(board);    //evaluate the current board and return 10 or -10 if someone is winning right now or return 0
+            if (score === 10) return score - depth;     //if the computer is winning, return 10 - depth to show how valuable the win was how early did we win
+            if (score === -10) return score + depth;    //if the player if winning w ewill return -10+depth telling how far did we loose did we loose very early or later
+            if (board.every(cell => cell !== '')) return 0;
+
+            if (isMax) {
+                let best = -Infinity;
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'O';     // Putting X ar current
+                        best = Math.max(best, minimax(board, depth + 1, !isMax));   //finding the maximum of current best and the value for next depth to maximize the score of computer winning
+                        board[i] = '';      //reselting back to initial
+                    }
+                }
+                return best;
+            } else {
+                let best = Infinity;
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'X';     //putting X at current cell
+                        best = Math.min(best, minimax(board, depth + 1, !isMax)); //finding minimum of current best and the value for next depth to minimize the probability of userwining
+                        board[i] = '';      //reseting back to initial
+                    }
+                }
+                return best;
+            }
+        }
+
+        function evaluate(board) {
+            const winPatterns = [
+                [0, 1, 2],
+                [3, 4, 5],
+                [6, 7, 8],
+                [0, 3, 6],
+                [1, 4, 7],
+                [2, 5, 8],
+                [0, 4, 8],
+                [2, 4, 6]
+            ];
+
+            for (let pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (board[a] === board[b] && board[b] === board[c]) {
+                    if (board[a] === 'O') return 10;
+                    if (board[a] === 'X') return -10;
+                }
+            }
+            return 0;
+        }
+
+        
+
+        function restartGame() {
+            startGame();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>

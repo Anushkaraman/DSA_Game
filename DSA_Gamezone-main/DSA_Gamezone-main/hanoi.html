@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tower of Hanoi</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Dancing Script', cursive;
+            font-size: large;
+            background-image: url('https://img.freepik.com/free-vector/blurred-bokeh-pattern-wallpaper-soft-touch-your-walls_1017-43483.jpg');
+            background-size: cover; /* Make the image cover the entire background */
+            background-position: center;
+        }
+        .tower {
+            position: relative;
+            width: 12px;
+            height: 200px; /* Adjust the height to contain all disks */
+            background-color: #a53208;
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            overflow: visible; /* Ensure disks don't go out of bounds */
+            border-radius: 20px;
+            margin: 0 165px;
+        }
+        .tower-base {
+            width: 240px;
+            height: 14px;
+            background-color: #a53208;
+            border-radius: 5px;
+            margin-right: 50px;
+            margin-left: 50px
+        }
+
+        .bases {
+            display: flex;
+            justify-content: space-around;
+            margin-top: -55px;
+
+        }
+
+        /*.tower-container {
+            display: flex;
+            flex-direction: column-reverse;
+            align-items: center;
+            margin: 0 50px; 
+            position: relative; 
+            
+        }*/
+
+        .disk {
+            position: absolute;
+            height: 21px; /* Adjust height as needed */
+            text-align: center;
+            border: 1px solid darkblue;
+            border-radius: 10px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 50px;
+            margin-bottom: 50px;
+        }
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Space between controls */
+            margin: 20px;
+        }
+
+        .number-input {
+            display: flex;
+            align-items: center;
+            margin-left: 4px;
+            margin-right: 15px;
+        }
+
+        .number-input button {
+            padding: 5px 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .number-input button:hover {
+            background-color: #45a049;
+
+        }
+
+        .number-input input[type="number"] {
+            width: 50px;
+            padding: 3px;
+            font-size: 16px;
+            text-align: center;
+            margin-left: 0px;
+            margin-right: 0px;
+
+        }
+
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-family: 'Dancing Script', cursive;
+            
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        input[type="number"] {
+            width: 50px;
+            padding: 5px;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        #minus_button {
+            margin-right: 0px;
+            background-color: rgb(14, 157, 88);
+            border-radius: 2px;
+            height: 31px;
+        }
+        #plus_button {
+            margin-left: 0px;
+            background-color: rgb(14, 157, 88);
+            border-radius: 2px;
+            height: 31px;
+        }
+       
+
+    </style>
+</head>
+<body>
+    <h1>Tower of Hanoi</h1>
+    <div class="controls">
+        <label for="numRings" >Disks:</label>
+        <div class="number-input">
+            <button onclick="changeNumRings(-1)" id="minus_button">-</button>
+            <input type="number" id="numRings" min="1" max="8" value="3">
+            <button onclick="changeNumRings(1)" id="plus_button">+</button>
+        </div>
+        <button onclick="startGame()">Start Game</button>
+        <button onclick="showSolution()">Show Solution</button>
+    </div>    
+    <p>Moves: <span id="moveCounter">0</span></p>
+    <p id="message"></p>
+    <div class="container">
+        <div class="tower" id="tower1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="tower" id="tower2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="tower" id="tower3" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+    <div class="bases">
+    <div class="tower-base"></div>
+    <div class="tower-base"></div>
+    <div class="tower-base"></div>
+    </div>
+    <p>Min. Moves: <span id="min_moves">0</span></p>
+    
+    <script>
+        let towers = [[], [], []];  //empty array representing the three towers
+        let moveCounter = 0;        //to track the number of moves
+        let selectedDisk = null;
+        let selectedTower = null;
+        let numRings = 3; // Default number of rings
+        var minmoves = document.getElementById('min_moves');
+        function changeNumRings(delta) {
+                const numRingsInput = document.getElementById('numRings');
+                let newValue = parseInt(numRingsInput.value) + delta;
+                if (newValue < parseInt(numRingsInput.min)) {
+                    newValue = parseInt(numRingsInput.min);
+                } else if (newValue > parseInt(numRingsInput.max)) {
+                    newValue = parseInt(numRingsInput.max);
+                }
+                numRingsInput.value = newValue;
+            }
+        function createDisk(size, totalDisks, diskIndex) {
+            let disk = document.createElement('div');   //create a div element for disks
+            disk.classList.add('disk');         //add  disks class to apply css for disks
+            disk.style.width = `${size * 26}px`;    //setting width of each ring
+            disk.style.bottom = `${diskIndex * 22}px`; // Adjusted spacing to ensure proper stacking
+            disk.innerText = size;
+            disk.setAttribute('draggable', true);       //it helps to drag the disks
+            disk.addEventListener('dragstart', dragStart);  //dragStart will bw called as soon as i will start dragging
+            const colors = [
+            'rgba(173, 216, 230)', // lightblue
+            'rgba(255, 182, 193)', // lightpink
+            'rgba(144, 238, 144)', // lightgreen
+            'rgba(255, 165, 0)',   // orange
+            'rgba(255, 255, 0)',   // yellow
+            'rgba(221, 160, 221)', // plum
+            'rgba(255, 99, 71)',   // tomato
+            'rgba(135, 206, 250)'  // lightskyblue
+            ];  //to make each ring of different colour
+            disk.style.backgroundColor = colors[size - 1] || 'rgba(173, 216, 230, 0.7)'; // Default to lightblue if size exceeds array
+            minmoves.innerHTML = Math.pow(2, numRings) - 1;     //calculare min possible moves for n rings in which we can move all the rings to distination using auxilary
+            return disk;
+            }
+
+           
+        function setupTowers() {
+            towers = [[], [], []];
+            for (let i = numRings; i > 0; i--) {
+                towers[0].push(i);
+            }
+            renderTowers();
+            moveCounter = 0;
+            document.getElementById('moveCounter').innerText = moveCounter;
+        }
+
+
+        function renderTowers() {
+            let towerElements = [
+                document.getElementById('tower1'),
+                document.getElementById('tower2'),
+                document.getElementById('tower3')
+           ];
+            towerElements.forEach((tower, index) => {
+                //tower will represent the tower and index will represent the index of the tower
+                tower.innerHTML = '';       //empty all the content in the tower so that next time it will not append the disks
+
+                towers[index].forEach((diskSize, idx) => {
+                    const disk = createDisk(diskSize, towers[index].length, idx);       //creates a disk with size as DiskSize and totalDisks as current number of disks in the tower and diskIndex as index of the disk within the current tower used for proper stacking of disks
+                    tower.appendChild(disk);       //append the disk to the tower
+                });
+            });
+        }
+        function checkWin() {
+            if (towers[2].length === numRings)      // check if the target tower has all the disks
+            {
+                document.getElementById('message').innerText = 'You won!';
+            }
+        }
+
+
+        function selectTower(towerIndex) {
+            if (selectedTower === null) {   // if we select nothing like no tower is selected the current tower automatically become selected tower
+                selectedTower = towerIndex;
+            } else {
+                if (selectedTower !== towerIndex) {     // if selected tower is not the current tower then move the disk
+                    moveDisk(selectedTower, towerIndex);
+                }
+                selectedTower = null;   //make selected tower null
+            }
+        }
+
+        // Adjusted moveDisk function
+        function moveDisk(from, to) {
+            if (towers[from].length === 0) return;      // if the tower from which i am moving the disks from is empty then we will return nothing
+            const disk = towers[from][towers[from].length - 1]; //stores the topmost disk in the disk because disks are stored in descending order
+            if (towers[to].length === 0 || disk < towers[to][towers[to].length - 1]) {      //if the tower we are moving our disk on is empty such that no disk is present on that tower or the disk we are moving is smaller than the topmost disk of the tower we are moving to then only we can move the disk
+                towers[from].pop();
+                towers[to].push(disk);
+                moveCounter++;      //increase the number of steps
+                document.getElementById('moveCounter').innerText = moveCounter;
+                renderTowers();     //restack the tower based on the current state of the towers
+                setTimeout(checkWin, 500);      //check if the player has won or not have 500 milisecond delay so that render can complete first
+            }
+        }
+
+        function startGame() {
+            document.getElementById('message').innerText = '';      //remove any message from the screen
+            numRings = parseInt(document.getElementById('numRings').value);
+            if (numRings < 1 || numRings > 8) {
+                alert("Please enter a number between 1 and 8.");
+                return;
+            }
+            setupTowers();      //set up towers according to the user given input
+        }
+
+        function dragStart(event) {
+            const diskSize = parseInt(event.target.innerText);  //retrieve the size of the disk being dragged
+            //event.target gives refrence of the thing on ehich the event is occuring
+            const towerIndex = Array.from(event.target.parentNode.parentNode.children).indexOf(event.target.parentNode);        //retrieve the index of the tower from which the disk is being dragged from event.target is the disk .parentNode is the tower and .parentNode.parentNode is the container in which towers are present form them we are getting the index of the tower from which we are dragging the disk form
+            selectedDisk = { size: diskSize, tower: towerIndex };
+        }
+
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            //event.target is the yower on which the disk is being dropped .parentNode is the container sand children refer to all the towers we are doing this to get the index of the tower on which the disk is being dropped
+            const targetTower = Array.from(event.target.parentNode.children).indexOf(event.target);
+            moveDisk(selectedDisk.tower, targetTower);
+            selectedDisk = null;
+        }
+
+        // Function to show the solution
+        function showSolution() {
+            document.getElementById('message').innerText = '';
+            if (numRings < 1 || numRings > 8) {
+                alert("Please enter a number between 1 and 8.");
+                return;
+            }
+            setupTowers();
+            setTimeout(() => {
+        let moves = [];
+        hanoi(numRings, 0, 2, 1, moves);        //call recursive hanoi function
+        animateSolution(moves);                 //shows all the moves by animating them animation will work after we have found the complete solution
+    }, 1000);
+        }
+
+        // Tower of Hanoi recursive solution function
+        function hanoi(n, from, to, aux, moves) {
+            if (n === 0) return;
+            hanoi(n - 1, from, aux, to, moves); // Move n-1 disks from source to auxiliary
+            moves.push([from, to]);
+            hanoi(n - 1, aux, to, from, moves); // Move n-1 disks from auxiliary to target
+        }
+        
+
+        // Function to animate the solution moves
+        function animateSolution(moves) {
+            //createDisk(size, totalDisks);
+            let i = 0;
+            moveCounter = 0;
+            function moveNext() {
+                if (i >= moves.length) return;
+                let [from, to] = moves[i];  // set first move in the moves array as from and to
+                moveDisk(from, to);  // move the disk according to solution(moves array)
+                i++;
+                setTimeout(moveNext, 500); // Adjust the delay as needed
+            }
+            moveNext(); //call until  all moves are finished
+        }
+    </script>
+</body>
+</html>
+
