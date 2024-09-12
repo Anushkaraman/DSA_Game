@@ -19,17 +19,4 @@ Select nodes by clicking on them.
 Delete selected nodes with animations showing the BST reconfiguration after removal.
 
 
-**Tic Tac Toe**
-An engaging implementation of the classic Tic Tac Toe game where users can:
-
-Play against the computer.
-Experience an intuitive and responsive design.
-
-
-#Tower of Hanoi
-A visual representation of the Tower of Hanoi problem, illustrating the recursive solution. Users can:
-
-Move disks between rods to solve the puzzle.
-Watch the solution process step-by-step with animations.
-
-//deployment-link: https://tamanna225.github.io/DSA_Gamezone/
+ 
