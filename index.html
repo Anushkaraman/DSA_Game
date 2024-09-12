@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Zone</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: 'Dancing Script', cursive;
+            background-image: url('https://www.shutterstock.com/image-vector/beautiful-wallpaper-hd-splash-watercolor-600nw-1731530434.jpg');
+            background-size: cover; /* Make the image cover the entire background */
+            background-position: center;
+        }
+        h1 {
+            position: absolute;
+            top: 20px;
+            text-align: center;
+            width: 100%;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+            width: 70%;
+            height: 80%;
+            justify-items: center;
+            margin-top: 100px;
+        }
+        .game-icon {
+            width: 300px;
+            height: 280px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transition: transform 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .game-icon:hover {
+            transform: scale(1.05);
+        }
+        .game-title {
+            margin-top: 5px;
+            width: 100px;
+            height: 60px;
+            text-align: center;
+            font-size: 15px;
+            color: #333;
+        }
+        h1{
+            font-size: 40px;
+            
+        }
+        
+    </style>
+</head>
+<body>
+
+<h1>Game Zone</h1>
+<div class="container">
+    <div class="game-icon" onclick="location.href='hanoi.html'">
+        <img src="images\hanai.png" alt="Tower of Hanoi" style="width: 100%; height: 85%; object-fit: cover;">
+        <div class="game-title">Tower of Hanoi</div>
+    </div>
+    <div class="game-icon" onclick="location.href='queen.html'">
+        <img src="https://cdn.pixabay.com/photo/2018/05/19/12/50/chess-3413427_960_720.png" alt="N-Queens" style="width: 100%; height: 85%; object-fit: cover;">
+        <div class="game-title">N-Queens</div>
+    </div>
+    <div class="game-icon" onclick="location.href='tictactoe.html'">
+        <img src="images\tickihi.png" alt="Tic Tac Toe" style="width: 100%; height: 85%; object-fit: cover;">
+        <div class="game-title">Tic Tac Toe</div>
+    </div>
+    <div class="game-icon" onclick="location.href='bst.html'">
+        <img src="images\bst.png" alt="BST Visualization" style="width: 100%; height: 85%; object-fit: cover;">
+        <div class="game-title">BST Visualization</div>
+    </div>
+</div>
+
+</body>
+</html>
