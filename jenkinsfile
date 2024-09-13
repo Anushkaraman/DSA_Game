@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials' // Jenkins credentials ID for DockerHub
+        DOCKER_IMAGE_NAME = 'your-dockerhub-username/your-image-name' // DockerHub image name
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from your Git repository
+                checkout scm
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    docker.build("${env.DOCKER_IMAGE_NAME}")
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Login to DockerHub
+                    docker.withRegistry('https://index.docker.io/v1/', "${env.DOCKER_CREDENTIALS_ID}") {
+                        // Push the Docker image to DockerHub
+                        docker.image("${env.DOCKER_IMAGE_NAME}").push('latest')
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up Docker images
+            sh 'docker system prune -f'
+        }
+    }
+}
